@@ -71,7 +71,15 @@ function Dashboard() {
           {loading ? (
             <p style={{ textAlign: 'center', color: '#94a3b8' }}>Učitavanje termina...</p>
           ) : termini.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#94a3b8' }}>Nema zakazanih termina.</p>
+  <div style={{ textAlign: 'center', padding: '30px 20px' }}>
+    <div style={{ fontSize: 50, marginBottom: 16 }}>✂️</div>
+    <h3 style={{ fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 8 }}>Još nema termina</h3>
+    <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 24 }}>Kad klijenti zakažu, termini će se pojaviti ovde u realnom vremenu.</p>
+    <div style={{ backgroundColor: '#eff6ff', borderRadius: 12, padding: '14px 16px', textAlign: 'left' }}>
+      <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💡 Savet</p>
+      <p style={{ fontSize: 13, color: '#3b82f6', margin: '4px 0 0' }}>Podeli link aplikacije sa klijentima i počni da primaš rezervacije!</p>
+    </div>
+  </div>
           ) : (
             <>
               <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: '#1e293b' }}>Zakazani Termini</h3>
