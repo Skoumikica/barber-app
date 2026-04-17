@@ -5,6 +5,8 @@ import SalonList from './screens/SalonList';
 import SalonDetail from './screens/SalonDetail';
 import Booking from './screens/Booking';
 import Dashboard from './screens/Dashboard';
+import Register from './screens/Register';
+import Login from './screens/Login';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/salon/:id" element={<SalonDetail />} />
         <Route path="/booking/:id" element={<Booking />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
