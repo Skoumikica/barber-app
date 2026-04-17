@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut } from 'lucide-react';
+import { Menu, LogOut, Clock, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -8,16 +8,19 @@ function AppointmentCard({ appointment }) {
   const [done, setDone] = useState(false);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0f0f0', opacity: done ? 0.4 : 1 }}>
-      <div style={{ backgroundColor: '#dbeafe', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12, fontSize: 16 }}>
-        👤
+    <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9', opacity: done ? 0.4 : 1 }}>
+      <div style={{ background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+        <User size={20} color="#2563eb" />
       </div>
       <div style={{ flex: 1 }}>
-        <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0 }}>{appointment.ime}</p>
-        <p style={{ fontSize: 12, color: '#666', margin: 0 }}>{appointment.vreme} · {appointment.dan} {appointment.datum}</p>
+        <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0, color: '#1e293b' }}>{appointment.ime}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+          <Clock size={11} color="#94a3b8" />
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>{appointment.vreme} · {appointment.dan} {appointment.datum}</span>
+        </div>
       </div>
       <button onClick={() => setDone(!done)}
-        style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: 'white', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 13 }}>
+        style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: done ? '#166534' : 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
         {done ? '✓ Gotovo' : appointment.vreme}
       </button>
     </div>
@@ -40,24 +43,43 @@ function Dashboard() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <div style={{ backgroundColor: '#1e3a8a', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Menu size={22} color="white" />
-        <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
-        <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
+    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Menu size={22} color="white" />
+          <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
+          <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
+        </div>
+        <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>{termini.length}</p>
+            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Ukupno</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>Today</p>
+            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Danas</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>Active</p>
+            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Status</p>
+          </div>
+        </div>
       </div>
 
       <div style={{ padding: 20 }}>
-        {loading ? (
-          <p style={{ textAlign: 'center', color: '#666' }}>Učitavanje termina...</p>
-        ) : termini.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#666' }}>Nema zakazanih termina.</p>
-        ) : (
-          <>
-            <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8 }}>Zakazani Termini ({termini.length})</h3>
-            {termini.map(a => <AppointmentCard key={a.id} appointment={a} />)}
-          </>
-        )}
+        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          {loading ? (
+            <p style={{ textAlign: 'center', color: '#94a3b8' }}>Učitavanje termina...</p>
+          ) : termini.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#94a3b8' }}>Nema zakazanih termina.</p>
+          ) : (
+            <>
+              <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: '#1e293b' }}>Zakazani Termini</h3>
+              <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14 }}>{termini.length} termin(a) ukupno</p>
+              {termini.map(a => <AppointmentCard key={a.id} appointment={a} />)}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

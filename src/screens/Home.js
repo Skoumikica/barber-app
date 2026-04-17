@@ -1,53 +1,68 @@
 import React from 'react';
-import { Search, Star } from 'lucide-react';
+import { Search, Star, Scissors } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const salons = [
-  { id: 1, name: 'Style Cut', rating: 4.8, price: 800 },
-  { id: 2, name: 'Urban Barber', rating: 4.7, price: 1000 },
-  { id: 3, name: 'Glamour Studio', rating: 4.9, price: 1200 },
-  { id: 4, name: 'Classic Barbers', rating: 4.6, price: 700 },
+  { id: 1, name: 'Style Cut', rating: 4.8, price: 800, img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&q=80' },
+  { id: 2, name: 'Urban Barber', rating: 4.7, price: 1000, img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80' },
+ { id: 3, name: 'Glamour Studio', rating: 4.9, price: 1200, img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80' },
+  { id: 4, name: 'Classic Barbers', rating: 4.6, price: 700, img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80' },
 ];
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 20 }}>
-      <h1 style={{ fontSize: 26, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>
-        Pronađi i zakaži <span style={{ color: '#2563eb' }}>frizera</span> u par klikova
-      </h1>
+    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      
+      <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '32px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          <Scissors size={22} color="white" />
+          <span style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>BarberApp</span>
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 'bold', color: 'white', marginBottom: 4 }}>
+          Pronađi savršenog
+        </h1>
+        <h1 style={{ fontSize: 26, fontWeight: 'bold', color: '#93c5fd', marginBottom: 20 }}>
+          frizera 💈
+        </h1>
 
-      <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', borderRadius: 8, padding: '8px 12px', marginBottom: 12 }}>
-        <Search size={18} color="#999" />
-        <input placeholder="Grad ili usluga..." style={{ border: 'none', outline: 'none', marginLeft: 8, width: '100%', fontSize: 15 }} />
+        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', borderRadius: 12, padding: '10px 14px', gap: 8 }}>
+          <Search size={18} color="#94a3b8" />
+          <input placeholder="Grad ili usluga..." style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, color: '#333' }} />
+        </div>
       </div>
 
-      <button
-        onClick={() => navigate('/salons')}
-        style={{ width: '100%', backgroundColor: '#2563eb', color: 'white', padding: '12px', borderRadius: 8, border: 'none', fontSize: 16, cursor: 'pointer', marginBottom: 24 }}>
-        Zakaži Odmah
-      </button>
+      <div style={{ padding: '20px' }}>
+        <button
+          onClick={() => navigate('/salons')}
+          style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', marginBottom: 24, boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
+          Zakaži Odmah →
+        </button>
 
-      <button
-  onClick={() => navigate('/dashboard')}
-  style={{ width: '100%', backgroundColor: '#1e3a8a', color: 'white', padding: '12px', borderRadius: 8, border: 'none', fontSize: 16, cursor: 'pointer', marginBottom: 24 }}>
-  Kontrolna Tabla (Frizer)
-</button>
-      <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Popularni Saloni</h2>
+        <button
+          onClick={() => navigate('/dashboard')}
+          style={{ width: '100%', backgroundColor: 'white', color: '#1e3a8a', padding: '12px', borderRadius: 12, border: '2px solid #e2e8f0', fontSize: 15, fontWeight: 'bold', cursor: 'pointer', marginBottom: 24 }}>
+          Kontrolna Tabla (Frizer)
+        </button>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {salons.map(salon => (
-          <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
-            style={{ border: '1px solid #eee', borderRadius: 10, padding: 12, cursor: 'pointer' }}>
-            <div style={{ backgroundColor: '#dbeafe', height: 80, borderRadius: 8, marginBottom: 8 }} />
-            <p style={{ fontWeight: 'bold', marginBottom: 4 }}>{salon.name}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Star size={14} color="#f59e0b" fill="#f59e0b" />
-              <span style={{ fontSize: 13 }}>{salon.rating} · {salon.price} RSD</span>
+        <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Popularni Saloni</h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {salons.map(salon => (
+            <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
+              style={{ backgroundColor: 'white', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+              <img src={salon.img} alt={salon.name} style={{ width: '100%', height: 90, objectFit: 'cover' }} />
+              <div style={{ padding: '10px 10px 12px' }}>
+                <p style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 4, color: '#1e293b' }}>{salon.name}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                  <span style={{ fontSize: 12, color: '#64748b' }}>{salon.rating} · {salon.price} RSD</span>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
