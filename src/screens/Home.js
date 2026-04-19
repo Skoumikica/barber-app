@@ -1,25 +1,41 @@
-import React from 'react';
-import { Search, Star, Scissors } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, Star, Scissors, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const salons = [
   { id: 1, name: 'Style Cut', rating: 4.8, price: 800, img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&q=80' },
   { id: 2, name: 'Urban Barber', rating: 4.7, price: 1000, img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80' },
- { id: 3, name: 'Glamour Studio', rating: 4.9, price: 1200, img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80' },
+  { id: 3, name: 'Glamour Studio', rating: 4.9, price: 1200, img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80' },
   { id: 4, name: 'Classic Barbers', rating: 4.6, price: 700, img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80' },
 ];
 
 function Home() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '32px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <Scissors size={22} color="white" />
-          <span style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>BarberApp</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Scissors size={22} color="white" />
+            <span style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>BarberApp</span>
+          </div>
+          <div onClick={() => navigate(user ? '/dashboard' : '/login')}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 12px', cursor: 'pointer' }}>
+            <LogIn size={15} color="white" />
+            <span style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{user ? 'Moj salon' : 'Frizer? Prijavi se'}</span>
+          </div>
         </div>
+
         <h1 style={{ fontSize: 26, fontWeight: 'bold', color: 'white', marginBottom: 4 }}>
           Pronađi savršenog
         </h1>
@@ -40,11 +56,16 @@ function Home() {
           Zakaži Odmah →
         </button>
 
-        <button
-          onClick={() => navigate('/dashboard')}
-          style={{ width: '100%', backgroundColor: 'white', color: '#1e3a8a', padding: '12px', borderRadius: 12, border: '2px solid #e2e8f0', fontSize: 15, fontWeight: 'bold', cursor: 'pointer', marginBottom: 24 }}>
-          Kontrolna Tabla (Frizer)
-        </button>
+        {!user && (
+          <div onClick={() => navigate('/register')}
+            style={{ backgroundColor: '#eff6ff', borderRadius: 12, padding: '14px 16px', marginBottom: 24, cursor: 'pointer', border: '1px solid #bfdbfe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 'bold', color: '#1e3a8a', margin: 0 }}>💈 Si frizer?</p>
+              <p style={{ fontSize: 13, color: '#3b82f6', margin: '2px 0 0' }}>Registruj svoj salon besplatno</p>
+            </div>
+            <span style={{ color: '#2563eb', fontSize: 20 }}>→</span>
+          </div>
+        )}
 
         <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Popularni Saloni</h2>
 

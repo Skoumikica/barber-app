@@ -7,6 +7,7 @@ import Booking from './screens/Booking';
 import Dashboard from './screens/Dashboard';
 import Register from './screens/Register';
 import Login from './screens/Login';
+import SalonSetup from './screens/SalonSetup';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/setup" element={<SalonSetup />} />
       </Routes>
     </BrowserRouter>
   );

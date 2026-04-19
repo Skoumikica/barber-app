@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut, Clock, User } from 'lucide-react';
+import { Menu, LogOut, Clock, User, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -48,7 +48,10 @@ function Dashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Menu size={22} color="white" />
           <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
-          <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <Settings size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/setup')} />
+            <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
+          </div>
         </div>
         <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between' }}>
           <div style={{ textAlign: 'center' }}>
@@ -71,15 +74,15 @@ function Dashboard() {
           {loading ? (
             <p style={{ textAlign: 'center', color: '#94a3b8' }}>Učitavanje termina...</p>
           ) : termini.length === 0 ? (
-  <div style={{ textAlign: 'center', padding: '30px 20px' }}>
-    <div style={{ fontSize: 50, marginBottom: 16 }}>✂️</div>
-    <h3 style={{ fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 8 }}>Još nema termina</h3>
-    <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 24 }}>Kad klijenti zakažu, termini će se pojaviti ovde u realnom vremenu.</p>
-    <div style={{ backgroundColor: '#eff6ff', borderRadius: 12, padding: '14px 16px', textAlign: 'left' }}>
-      <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💡 Savet</p>
-      <p style={{ fontSize: 13, color: '#3b82f6', margin: '4px 0 0' }}>Podeli link aplikacije sa klijentima i počni da primaš rezervacije!</p>
-    </div>
-  </div>
+            <div style={{ textAlign: 'center', padding: '30px 20px' }}>
+              <div style={{ fontSize: 50, marginBottom: 16 }}>✂️</div>
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 8 }}>Još nema termina</h3>
+              <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 24 }}>Kad klijenti zakažu, termini će se pojaviti ovde u realnom vremenu.</p>
+              <div style={{ backgroundColor: '#eff6ff', borderRadius: 12, padding: '14px 16px', textAlign: 'left' }}>
+                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💡 Savet</p>
+                <p style={{ fontSize: 13, color: '#3b82f6', margin: '4px 0 0' }}>Podeli link aplikacije sa klijentima i počni da primaš rezervacije!</p>
+              </div>
+            </div>
           ) : (
             <>
               <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: '#1e293b' }}>Zakazani Termini</h3>
