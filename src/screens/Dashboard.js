@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut, Clock, User, Settings } from 'lucide-react';
+import { Menu, LogOut, Clock, User, Settings, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 
 function AppointmentCard({ appointment }) {
   const [done, setDone] = useState(false);
@@ -21,7 +21,7 @@ function AppointmentCard({ appointment }) {
       </div>
       <button onClick={() => setDone(!done)}
         style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: done ? '#166534' : 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
-        {done ? '✓ Gotovo' : appointment.vreme}
+        {done ? '✓' : appointment.vreme}
       </button>
     </div>
   );
@@ -42,10 +42,20 @@ function Dashboard() {
     return () => unsubscribe();
   }, []);
 
+  const ovajMesec = termini.filter(t => {
+    if (!t.kreirano) return false;
+    const datum = t.kreirano.toDate ? t.kreirano.toDate() : new Date(t.kreirano);
+    const sad = new Date();
+    return datum.getMonth() === sad.getMonth() && datum.getFullYear() === sad.getFullYear();
+  });
+
+  const zavrseni = termini.filter(t => t.done);
+  const procenjeniPrihod = ovajMesec.length * 800;
+
   return (
     <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <Menu size={22} color="white" />
           <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -53,18 +63,23 @@ function Dashboard() {
             <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
           </div>
         </div>
-        <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between' }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>{termini.length}</p>
-            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Ukupno</p>
+
+        {/* Statistike */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
+            <Calendar size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 20, margin: 0 }}>{ovajMesec.length}</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>Ovaj mesec</p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>Today</p>
-            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Danas</p>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
+            <TrendingUp size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 18, margin: 0 }}>{procenjeniPrihod.toLocaleString()}</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>RSD prihod</p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 22, margin: 0 }}>Active</p>
-            <p style={{ color: '#93c5fd', fontSize: 12, margin: 0 }}>Status</p>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
+            <CheckCircle size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 20, margin: 0 }}>{termini.length}</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>Ukupno</p>
           </div>
         </div>
       </div>
