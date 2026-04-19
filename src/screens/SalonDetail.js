@@ -14,37 +14,62 @@ const salonsStatic = [
 function SalonDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [salon, setSalon] = useState(null);
   const [usluge, setUsluge] = useState([]);
-  const [loadingUsluge, setLoadingUsluge] = useState(true);
-
-  const salon = salonsStatic.find(s => s.id === id);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsluge = async () => {
-      try {
-        const docRef = doc(db, 'frizeri', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().usluge) {
-          setUsluge(docSnap.data().usluge);
-        } else {
-          setUsluge(salon?.services || [
+    const fetchSalon = async () => {
+      const staticSalon = salonsStatic.find(s => s.id === id);
+
+      if (staticSalon) {
+        setSalon(staticSalon);
+        try {
+          const docSnap = await getDoc(doc(db, 'frizeri', id));
+          if (docSnap.exists() && docSnap.data().usluge) {
+            setUsluge(docSnap.data().usluge);
+          } else {
+            setUsluge([
+              { naziv: 'Muško šišanje', cena: 800, trajanje: 30 },
+              { naziv: 'Sređivanje brade', cena: 500, trajanje: 20 },
+              { naziv: 'Šišanje & Brada', cena: 1200, trajanje: 45 },
+            ]);
+          }
+        } catch {
+          setUsluge([
             { naziv: 'Muško šišanje', cena: 800, trajanje: 30 },
             { naziv: 'Sređivanje brade', cena: 500, trajanje: 20 },
             { naziv: 'Šišanje & Brada', cena: 1200, trajanje: 45 },
           ]);
         }
-      } catch {
-        setUsluge([
-          { naziv: 'Muško šišanje', cena: 800, trajanje: 30 },
-          { naziv: 'Sređivanje brade', cena: 500, trajanje: 20 },
-          { naziv: 'Šišanje & Brada', cena: 1200, trajanje: 45 },
-        ]);
+      } else {
+        try {
+          const docSnap = await getDoc(doc(db, 'frizeri', id));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setSalon({
+              id,
+              name: data.salonNaziv,
+              address: data.adresa || 'Beograd, Srbija',
+              phone: data.telefon || 'Kontaktirajte salon',
+              rating: 5.0,
+              reviews: 0,
+              bookings: 0,
+              badge: '✓ Novo',
+              img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80',
+            });
+            setUsluge(data.usluge || []);
+          }
+        } catch {
+          setSalon(null);
+        }
       }
-      setLoadingUsluge(false);
+      setLoading(false);
     };
-    fetchUsluge();
+    fetchSalon();
   }, [id]);
 
+  if (loading) return <p style={{ padding: 20 }}>Učitavanje...</p>;
   if (!salon) return <p style={{ padding: 20 }}>Salon nije pronađen.</p>;
 
   return (
@@ -85,8 +110,8 @@ function SalonDetail() {
 
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Usluge</h3>
-          {loadingUsluge ? (
-            <p style={{ color: '#94a3b8', textAlign: 'center' }}>Učitavanje...</p>
+          {usluge.length === 0 ? (
+            <p style={{ color: '#94a3b8', textAlign: 'center' }}>Nema usluga.</p>
           ) : (
             usluge.map((usluga, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 12, marginBottom: 12, borderBottom: index < usluge.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
