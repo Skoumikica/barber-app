@@ -3,6 +3,7 @@ import { ArrowLeft, Clock } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import emailjs from '@emailjs/browser';
 
 const days = ['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'];
 const dates = [14, 15, 16, 17, 18, 19, 20];
@@ -63,13 +64,38 @@ function Booking() {
         trajanje: selectedUsluga.trajanje,
         kreirano: new Date()
       });
+
+      // Uzmi email frizera iz Firebase
+      const docSnap = await getDoc(doc(db, 'frizeri', id));
+      if (docSnap.exists()) {
+        const frizerEmail = docSnap.data().email;
+        const salonNaziv = docSnap.data().salonNaziv;
+
+        await emailjs.send(
+          'service_kgg93x5',
+          'template_ih73t6h',
+          {
+            email: frizerEmail,
+            salon_naziv: salonNaziv,
+            klijent_ime: ime,
+            klijent_telefon: telefon,
+            usluga: selectedUsluga.naziv,
+            dan: days[selectedDay],
+            datum: dates[selectedDay],
+            vreme: selectedTime,
+            cena: selectedUsluga.cena,
+          },
+          'GxX0uBmT-h8_iDTQl'
+        );
+      }
+
       setConfirmed(true);
     } catch (error) {
+      console.log(error);
       alert('Greška pri zakazivanju. Pokušajte ponovo.');
     }
     setLoading(false);
   };
-
   if (confirmed) {
     return (
       <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
