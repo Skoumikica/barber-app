@@ -16,6 +16,7 @@ function Home() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
@@ -24,8 +25,11 @@ function Home() {
 
   return (
     <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
-      
+
+      {/* PLAVI HEADER - POCETAK */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '32px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        
+        {/* Logo i navigacija */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Scissors size={22} color="white" />
@@ -44,6 +48,7 @@ function Home() {
           </div>
         </div>
 
+        {/* Naslovi */}
         <h1 style={{ fontSize: 26, fontWeight: 'bold', color: 'white', marginBottom: 4 }}>
           Pronađi savršenog
         </h1>
@@ -51,12 +56,30 @@ function Home() {
           frizera 💈
         </h1>
 
-        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', borderRadius: 12, padding: '10px 14px', gap: 8 }}>
+        {/* Search bar */}
+        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', borderRadius: 12, padding: '10px 14px', gap: 8, marginBottom: 10 }}>
           <Search size={18} color="#94a3b8" />
-          <input placeholder="Grad ili usluga..." style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, color: '#333' }} />
+          <input
+            placeholder="Grad ili usluga..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && search.trim() && navigate(`/salons?q=${search}`)}
+            style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, color: '#333' }} />
         </div>
-      </div>
 
+        {/* Traži dugme */}
+        {search.trim() && (
+          <button
+            onClick={() => navigate(`/salons?q=${search}`)}
+            style={{ width: '100%', backgroundColor: 'white', color: '#1e3a8a', padding: '10px', borderRadius: 10, border: 'none', fontSize: 15, fontWeight: 'bold', cursor: 'pointer' }}>
+            🔍 Pretraži "{search}"
+          </button>
+        )}
+
+      </div>
+      {/* PLAVI HEADER - KRAJ */}
+
+      {/* BELI SADRZAJ - POCETAK */}
       <div style={{ padding: '20px' }}>
         <button
           onClick={() => navigate('/salons')}
@@ -93,6 +116,8 @@ function Home() {
           ))}
         </div>
       </div>
+      {/* BELI SADRZAJ - KRAJ */}
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme } from '../ThemeContext';
@@ -14,8 +14,10 @@ const salonsStatic = [
 
 function SalonList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
-  const [search, setSearch] = useState('');
+  const params = new URLSearchParams(location.search);
+  const [search, setSearch] = useState(params.get('q') || '');
   const [frizeri, setFrizeri] = useState([]);
 
   useEffect(() => {
@@ -45,7 +47,6 @@ function SalonList() {
 
   return (
     <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
-
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer', marginRight: 12 }} onClick={() => navigate('/')} />
@@ -62,30 +63,34 @@ function SalonList() {
       </div>
 
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {filtrirani.map(salon => (
-          <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
-            style={{ backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex' }}>
-            <img src={salon.img} alt={salon.name} style={{ width: 110, height: 100, objectFit: 'cover' }} />
-            <div style={{ padding: '14px 12px', flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                <p style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, margin: 0 }}>{salon.name}</p>
-                {salon.isReal && (
-                  <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 20 }}>✓ Verifikovan</span>
-                )}
+        {filtrirani.length === 0 ? (
+          <p style={{ textAlign: 'center', color: theme.subtext, marginTop: 20 }}>Nema rezultata za "{search}"</p>
+        ) : (
+          filtrirani.map(salon => (
+            <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
+              style={{ backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex' }}>
+              <img src={salon.img} alt={salon.name} style={{ width: 110, height: 100, objectFit: 'cover' }} />
+              <div style={{ padding: '14px 12px', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <p style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, margin: 0 }}>{salon.name}</p>
+                  {salon.isReal && (
+                    <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 20 }}>✓ Verifikovan</span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                  <Star size={13} color="#f59e0b" fill="#f59e0b" />
+                  <span style={{ fontSize: 13, color: theme.subtext }}>{salon.rating}</span>
+                </div>
+                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>od {salon.price} RSD</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
-                <Star size={13} color="#f59e0b" fill="#f59e0b" />
-                <span style={{ fontSize: 13, color: theme.subtext }}>{salon.rating}</span>
+              <div style={{ display: 'flex', alignItems: 'center', padding: 12 }}>
+                <button style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
+                  Pogledaj
+                </button>
               </div>
-              <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>od {salon.price} RSD</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', padding: 12 }}>
-              <button style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
-                Pogledaj
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
