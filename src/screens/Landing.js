@@ -1,14 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Scissors, Calendar, TrendingUp, Clock, Star, CheckCircle } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
 
 function Landing() {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
       
-      {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '48px 24px 40px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
           <Scissors size={28} color="white" />
@@ -27,23 +28,21 @@ function Landing() {
         <p style={{ color: '#93c5fd', fontSize: 13 }}>Bez kreditne kartice · Besplatno za početak</p>
       </div>
 
-      {/* Statistike */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, backgroundColor: '#e2e8f0', margin: '0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, backgroundColor: theme.border }}>
         {[
           { broj: '500+', tekst: 'Frizera' },
           { broj: '10k+', tekst: 'Rezervacija' },
           { broj: '4.9★', tekst: 'Ocena' },
         ].map((s, i) => (
-          <div key={i} style={{ backgroundColor: 'white', padding: '16px 8px', textAlign: 'center' }}>
-            <p style={{ fontSize: 20, fontWeight: 'bold', color: '#1e293b', margin: 0 }}>{s.broj}</p>
-            <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{s.tekst}</p>
+          <div key={i} style={{ backgroundColor: theme.card, padding: '16px 8px', textAlign: 'center' }}>
+            <p style={{ fontSize: 20, fontWeight: 'bold', color: theme.text, margin: 0 }}>{s.broj}</p>
+            <p style={{ fontSize: 12, color: theme.subtext, margin: 0 }}>{s.tekst}</p>
           </div>
         ))}
       </div>
 
-      {/* Prednosti */}
       <div style={{ padding: '24px 20px' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 'bold', color: '#1e293b', marginBottom: 16, textAlign: 'center' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 'bold', color: theme.text, marginBottom: 16, textAlign: 'center' }}>
           Zašto BarberApp?
         </h2>
 
@@ -53,18 +52,17 @@ function Landing() {
           { ikona: <Clock size={22} color="#2563eb" />, naslov: 'Uštedi vreme', opis: 'Nema više poziva i poruka. Sve je automatski.' },
           { ikona: <Star size={22} color="#2563eb" />, naslov: 'Izgleda profesionalno', opis: 'Tvoji klijenti dobijaju moderne iskustvo zakazivanja.' },
         ].map((p, i) => (
-          <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20, backgroundColor: 'white', borderRadius: 14, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-            <div style={{ backgroundColor: '#eff6ff', borderRadius: 10, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20, backgroundColor: theme.card, borderRadius: 14, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <div style={{ backgroundColor: theme.darkMode ? '#1e3a8a' : '#eff6ff', borderRadius: 10, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {p.ikona}
             </div>
             <div>
-              <p style={{ fontWeight: 'bold', fontSize: 15, color: '#1e293b', margin: 0, marginBottom: 4 }}>{p.naslov}</p>
-              <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>{p.opis}</p>
+              <p style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, margin: 0, marginBottom: 4 }}>{p.naslov}</p>
+              <p style={{ fontSize: 13, color: theme.subtext, margin: 0 }}>{p.opis}</p>
             </div>
           </div>
         ))}
 
-        {/* Cena */}
         <div style={{ backgroundColor: '#1e3a8a', borderRadius: 16, padding: 24, marginBottom: 20, textAlign: 'center' }}>
           <p style={{ color: '#93c5fd', fontSize: 13, margin: 0, marginBottom: 8 }}>CENOVNIK</p>
           <p style={{ color: 'white', fontSize: 36, fontWeight: 'bold', margin: 0 }}>Besplatno</p>
@@ -86,12 +84,11 @@ function Landing() {
           </button>
         </div>
 
-        {/* Footer */}
         <div style={{ textAlign: 'center', paddingBottom: 20 }}>
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>Već imaš nalog?{' '}
+          <p style={{ fontSize: 13, color: theme.subtext }}>Već imaš nalog?{' '}
             <span onClick={() => navigate('/login')} style={{ color: '#2563eb', fontWeight: 'bold', cursor: 'pointer' }}>Prijavi se</span>
           </p>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 8 }}>
+          <p style={{ fontSize: 13, color: theme.subtext, marginTop: 8 }}>
             Si klijent?{' '}
             <span onClick={() => navigate('/')} style={{ color: '#2563eb', fontWeight: 'bold', cursor: 'pointer' }}>Zakaži termin</span>
           </p>

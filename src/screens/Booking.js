@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import emailjs from '@emailjs/browser';
+import { useTheme } from '../ThemeContext';
 
 const days = ['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'];
 const dates = [14, 15, 16, 17, 18, 19, 20];
@@ -12,6 +13,7 @@ const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00'
 function Booking() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const theme = useTheme();
   const [selectedDay, setSelectedDay] = useState(2);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedUsluga, setSelectedUsluga] = useState(null);
@@ -103,12 +105,12 @@ function Booking() {
 
   if (confirmed) {
     return (
-      <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: theme.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ fontSize: 70, marginBottom: 20 }}>✅</div>
-        <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8, color: '#1e293b' }}>Termin zakazan!</h2>
-        <div style={{ backgroundColor: 'white', borderRadius: 14, padding: 20, marginBottom: 24, width: '100%', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <p style={{ fontSize: 15, color: '#334155', margin: '0 0 8px' }}>✂️ <strong>{selectedUsluga.naziv}</strong></p>
-          <p style={{ fontSize: 15, color: '#334155', margin: '0 0 8px' }}>🕐 {selectedTime}h · {days[selectedDay]} {dates[selectedDay]}</p>
+        <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>Termin zakazan!</h2>
+        <div style={{ backgroundColor: theme.card, borderRadius: 14, padding: 20, marginBottom: 24, width: '100%', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <p style={{ fontSize: 15, color: theme.text, margin: '0 0 8px' }}>✂️ <strong>{selectedUsluga.naziv}</strong></p>
+          <p style={{ fontSize: 15, color: theme.text, margin: '0 0 8px' }}>🕐 {selectedTime}h · {days[selectedDay]} {dates[selectedDay]}</p>
           <p style={{ fontSize: 15, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💰 {selectedUsluga.cena} RSD</p>
         </div>
         <button onClick={() => navigate('/')}
@@ -120,7 +122,7 @@ function Booking() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 100 }}>
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate(-1)} />
@@ -129,16 +131,16 @@ function Booking() {
       </div>
 
       <div style={{ padding: 20 }}>
-        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi uslugu</h3>
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi uslugu</h3>
           {usluge.map((usluga, i) => (
             <div key={i} onClick={() => setSelectedUsluga(usluga)}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, marginBottom: 8, cursor: 'pointer', border: '2px solid', borderColor: selectedUsluga?.naziv === usluga.naziv ? '#2563eb' : '#f1f5f9', backgroundColor: selectedUsluga?.naziv === usluga.naziv ? '#eff6ff' : 'white' }}>
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, marginBottom: 8, cursor: 'pointer', border: '2px solid', borderColor: selectedUsluga?.naziv === usluga.naziv ? '#2563eb' : theme.border, backgroundColor: selectedUsluga?.naziv === usluga.naziv ? '#eff6ff' : theme.bg }}>
               <div>
-                <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0, color: '#1e293b' }}>{usluga.naziv}</p>
+                <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0, color: theme.text }}>{usluga.naziv}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
                   <Clock size={11} color="#94a3b8" />
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{usluga.trajanje} min</span>
+                  <span style={{ fontSize: 12, color: theme.subtext }}>{usluga.trajanje} min</span>
                 </div>
               </div>
               <span style={{ fontWeight: 'bold', color: '#2563eb', fontSize: 15 }}>{usluga.cena} RSD</span>
@@ -146,14 +148,14 @@ function Booking() {
           ))}
         </div>
 
-        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi dan</h3>
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi dan</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {days.map((day, i) => (
               <div key={i} onClick={() => setSelectedDay(i)}
                 style={{ textAlign: 'center', cursor: 'pointer', padding: '8px 6px', borderRadius: 10, width: 40,
-                  backgroundColor: selectedDay === i ? '#2563eb' : '#f1f5f9',
-                  color: selectedDay === i ? 'white' : '#333' }}>
+                  backgroundColor: selectedDay === i ? '#2563eb' : theme.border,
+                  color: selectedDay === i ? 'white' : theme.text }}>
                 <div style={{ fontSize: 11 }}>{day}</div>
                 <div style={{ fontSize: 14, fontWeight: 'bold' }}>{dates[i]}</div>
               </div>
@@ -161,34 +163,34 @@ function Booking() {
           </div>
         </div>
 
-        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi vreme</h3>
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi vreme</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {timeSlots.map((time, i) => (
               <button key={i} onClick={() => setSelectedTime(time)}
                 style={{ padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 'bold',
-                  backgroundColor: selectedTime === time ? '#2563eb' : '#f1f5f9',
-                  color: selectedTime === time ? 'white' : '#334155', fontSize: 14 }}>
+                  backgroundColor: selectedTime === time ? '#2563eb' : theme.border,
+                  color: selectedTime === time ? 'white' : theme.text, fontSize: 14 }}>
                 {time}
               </button>
             ))}
           </div>
         </div>
 
-        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Vaši podaci</h3>
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Vaši podaci</h3>
           <input placeholder="Ime i prezime" value={ime} onChange={e => setIme(e.target.value)}
-            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
           <input placeholder="Email adresa" value={email} onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
           <input placeholder="Broj telefona" value={telefon} onChange={e => setTelefon(e.target.value)}
-            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, boxSizing: 'border-box', outline: 'none' }} />
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
         </div>
       </div>
 
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: 'white', borderTop: '1px solid #f1f5f9', boxSizing: 'border-box' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
         {selectedUsluga && (
-          <p style={{ textAlign: 'center', fontSize: 13, color: '#64748b', margin: '0 0 8px' }}>
+          <p style={{ textAlign: 'center', fontSize: 13, color: theme.subtext, margin: '0 0 8px' }}>
             {selectedUsluga.naziv} · {selectedUsluga.cena} RSD · {selectedUsluga.trajanje} min
           </p>
         )}
