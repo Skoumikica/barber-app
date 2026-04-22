@@ -17,6 +17,7 @@ function Booking() {
   const [selectedUsluga, setSelectedUsluga] = useState(null);
   const [usluge, setUsluge] = useState([]);
   const [ime, setIme] = useState('');
+  const [email, setEmail] = useState('');
   const [telefon, setTelefon] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,16 +47,14 @@ function Booking() {
   }, [id]);
 
   const handleConfirm = async () => {
-    if (!selectedTime || !selectedUsluga || !ime || !telefon) {
+    if (!selectedTime || !selectedUsluga || !ime || !telefon || !email) {
       alert('Molimo popunite sva polja, izaberite uslugu i termin.');
       return;
     }
     setLoading(true);
     try {
       await addDoc(collection(db, 'termini'), {
-        salonId: id,
-        ime,
-        telefon,
+        salonId: id, ime, telefon, email,
         dan: days[selectedDay],
         datum: dates[selectedDay],
         vreme: selectedTime,
@@ -65,28 +64,33 @@ function Booking() {
         kreirano: new Date()
       });
 
-      // Uzmi email frizera iz Firebase
       const docSnap = await getDoc(doc(db, 'frizeri', id));
       if (docSnap.exists()) {
         const frizerEmail = docSnap.data().email;
         const salonNaziv = docSnap.data().salonNaziv;
 
-        await emailjs.send(
-          'service_kgg93x5',
-          'template_ih73t6h',
-          {
-            email: frizerEmail,
-            salon_naziv: salonNaziv,
-            klijent_ime: ime,
-            klijent_telefon: telefon,
-            usluga: selectedUsluga.naziv,
-            dan: days[selectedDay],
-            datum: dates[selectedDay],
-            vreme: selectedTime,
-            cena: selectedUsluga.cena,
-          },
-          'GxX0uBmT-h8_iDTQl'
-        );
+        await emailjs.send('service_kgg93x5', 'template_ih73t6h', {
+          email: frizerEmail,
+          salon_naziv: salonNaziv,
+          klijent_ime: ime,
+          klijent_telefon: telefon,
+          usluga: selectedUsluga.naziv,
+          dan: days[selectedDay],
+          datum: dates[selectedDay],
+          vreme: selectedTime,
+          cena: selectedUsluga.cena,
+        }, 'GxX0uBmT-h8_iDTQl');
+
+        await emailjs.send('service_kgg93x5', 'template_89v0p0k', {
+          email: email,
+          salon_naziv: salonNaziv,
+          klijent_ime: ime,
+          usluga: selectedUsluga.naziv,
+          dan: days[selectedDay],
+          datum: dates[selectedDay],
+          vreme: selectedTime,
+          cena: selectedUsluga.cena,
+        }, 'GxX0uBmT-h8_iDTQl');
       }
 
       setConfirmed(true);
@@ -96,6 +100,7 @@ function Booking() {
     }
     setLoading(false);
   };
+
   if (confirmed) {
     return (
       <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -124,8 +129,6 @@ function Booking() {
       </div>
 
       <div style={{ padding: 20 }}>
-
-        {/* Izbor usluge */}
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi uslugu</h3>
           {usluge.map((usluga, i) => (
@@ -143,7 +146,6 @@ function Booking() {
           ))}
         </div>
 
-        {/* Izbor dana */}
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi dan</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -159,7 +161,6 @@ function Booking() {
           </div>
         </div>
 
-        {/* Izbor vremena */}
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Izaberi vreme</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -174,10 +175,11 @@ function Booking() {
           </div>
         </div>
 
-        {/* Podaci */}
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Vaši podaci</h3>
           <input placeholder="Ime i prezime" value={ime} onChange={e => setIme(e.target.value)}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }} />
+          <input placeholder="Email adresa" value={email} onChange={e => setEmail(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }} />
           <input placeholder="Broj telefona" value={telefon} onChange={e => setTelefon(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 15, boxSizing: 'border-box', outline: 'none' }} />
