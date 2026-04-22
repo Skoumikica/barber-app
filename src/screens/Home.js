@@ -3,6 +3,7 @@ import { Search, Star, Scissors, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useTheme } from '../ThemeContext';
 
 const salons = [
   { id: 1, name: 'Style Cut', rating: 4.8, price: 800, img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&q=80' },
@@ -12,6 +13,7 @@ const salons = [
 ];
 
 function Home() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
@@ -21,7 +23,7 @@ function Home() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
       
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '32px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -29,10 +31,16 @@ function Home() {
             <Scissors size={22} color="white" />
             <span style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>BarberApp</span>
           </div>
-          <div onClick={() => navigate(user ? '/dashboard' : '/login')}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 12px', cursor: 'pointer' }}>
-            <LogIn size={15} color="white" />
-            <span style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{user ? 'Moj salon' : 'Frizer? Prijavi se'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div onClick={theme.toggle}
+              style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 10px', cursor: 'pointer', fontSize: 16 }}>
+              {theme.darkMode ? '☀️' : '🌙'}
+            </div>
+            <div onClick={() => navigate(user ? '/dashboard' : '/login')}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 12px', cursor: 'pointer' }}>
+              <LogIn size={15} color="white" />
+              <span style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{user ? 'Moj salon' : 'Frizer? Prijavi se'}</span>
+            </div>
           </div>
         </div>
 
@@ -58,27 +66,27 @@ function Home() {
 
         {!user && (
           <div onClick={() => navigate('/register')}
-            style={{ backgroundColor: '#eff6ff', borderRadius: 12, padding: '14px 16px', marginBottom: 24, cursor: 'pointer', border: '1px solid #bfdbfe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            style={{ backgroundColor: theme.darkMode ? '#1e3a8a' : '#eff6ff', borderRadius: 12, padding: '14px 16px', marginBottom: 24, cursor: 'pointer', border: '1px solid #bfdbfe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 'bold', color: '#1e3a8a', margin: 0 }}>💈 Si frizer?</p>
+              <p style={{ fontSize: 14, fontWeight: 'bold', color: theme.darkMode ? 'white' : '#1e3a8a', margin: 0 }}>💈 Si frizer?</p>
               <p style={{ fontSize: 13, color: '#3b82f6', margin: '2px 0 0' }}>Registruj svoj salon besplatno</p>
             </div>
             <span style={{ color: '#2563eb', fontSize: 20 }}>→</span>
           </div>
         )}
 
-        <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 14, color: '#1e293b' }}>Popularni Saloni</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Popularni Saloni</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {salons.map(salon => (
             <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
-              style={{ backgroundColor: 'white', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+              style={{ backgroundColor: theme.card, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
               <img src={salon.img} alt={salon.name} style={{ width: '100%', height: 90, objectFit: 'cover' }} />
               <div style={{ padding: '10px 10px 12px' }}>
-                <p style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 4, color: '#1e293b' }}>{salon.name}</p>
+                <p style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 4, color: theme.text }}>{salon.name}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Star size={12} color="#f59e0b" fill="#f59e0b" />
-                  <span style={{ fontSize: 12, color: '#64748b' }}>{salon.rating} · {salon.price} RSD</span>
+                  <span style={{ fontSize: 12, color: theme.subtext }}>{salon.rating} · {salon.price} RSD</span>
                 </div>
               </div>
             </div>
