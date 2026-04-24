@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Star } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '../ThemeContext';
+import { BottomNav } from './Home';
 
 const salonsStatic = [
   { id: '1', name: 'Style Cut', rating: 4.8, price: 800, img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&q=80' },
@@ -19,6 +21,12 @@ function SalonList() {
   const params = new URLSearchParams(location.search);
   const [search, setSearch] = useState(params.get('q') || '');
   const [frizeri, setFrizeri] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchFrizeri = async () => {
@@ -46,7 +54,9 @@ function SalonList() {
   );
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 80 }}>
+
+      {/* HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer', marginRight: 12 }} onClick={() => navigate('/')} />
@@ -58,10 +68,11 @@ function SalonList() {
             placeholder="Grad ili usluga..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, backgroundColor: theme.card, color: theme.inputText }} />
+            style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, backgroundColor: 'transparent', color: theme.inputText }} />
         </div>
       </div>
 
+      {/* LISTA SALONA */}
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
         {filtrirani.length === 0 ? (
           <p style={{ textAlign: 'center', color: theme.subtext, marginTop: 20 }}>Nema rezultata za "{search}"</p>
@@ -69,22 +80,22 @@ function SalonList() {
           filtrirani.map(salon => (
             <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
               style={{ backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex' }}>
-              <img src={salon.img} alt={salon.name} style={{ width: 110, height: 100, objectFit: 'cover' }} />
-              <div style={{ padding: '14px 12px', flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                  <p style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, margin: 0 }}>{salon.name}</p>
+              <img src={salon.img} alt={salon.name} style={{ width: 110, height: 100, objectFit: 'cover', flexShrink: 0 }} />
+              <div style={{ padding: '12px 10px', flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+                  <p style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, margin: 0 }}>{salon.name}</p>
                   {salon.isReal && (
-                    <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 20 }}>✓ Verifikovan</span>
+                    <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap' }}>✓ Verifikovan</span>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                   <Star size={13} color="#f59e0b" fill="#f59e0b" />
                   <span style={{ fontSize: 13, color: theme.subtext }}>{salon.rating}</span>
                 </div>
                 <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>od {salon.price} RSD</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', padding: 12 }}>
-                <button style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '12px 10px', flexShrink: 0 }}>
+                <button style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
                   Pogledaj
                 </button>
               </div>
@@ -92,6 +103,10 @@ function SalonList() {
           ))
         )}
       </div>
+
+      {/* BOTTOM NAVIGATION */}
+      <BottomNav user={user} />
+
     </div>
   );
 }

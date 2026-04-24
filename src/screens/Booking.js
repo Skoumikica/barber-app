@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../ThemeContext';
+import { BottomNav } from './Home';
 
 const days = ['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'];
 const dates = [14, 15, 16, 17, 18, 19, 20];
@@ -23,6 +25,12 @@ function Booking() {
   const [telefon, setTelefon] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchUsluge = async () => {
@@ -103,9 +111,10 @@ function Booking() {
     setLoading(false);
   };
 
+  // EKRAN POTVRDE
   if (confirmed) {
     return (
-      <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: theme.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: theme.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: 100 }}>
         <div style={{ fontSize: 70, marginBottom: 20 }}>✅</div>
         <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>Termin zakazan!</h2>
         <div style={{ backgroundColor: theme.card, borderRadius: 14, padding: 20, marginBottom: 24, width: '100%', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -120,13 +129,16 @@ function Booking() {
         <button onClick={() => navigate(`/recenzija/${id}`)}
           style={{ background: 'none', color: '#2563eb', border: 'none', fontSize: 14, cursor: 'pointer', marginTop: 12, textDecoration: 'underline' }}>
           Ostavi recenziju ⭐
-       </button>
+        </button>
+        <BottomNav user={user} />
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 160 }}>
+
+      {/* HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate(-1)} />
@@ -135,6 +147,8 @@ function Booking() {
       </div>
 
       <div style={{ padding: 20 }}>
+
+        {/* USLUGE */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi uslugu</h3>
           {usluge.map((usluga, i) => (
@@ -152,6 +166,7 @@ function Booking() {
           ))}
         </div>
 
+        {/* DAN */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi dan</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -167,6 +182,7 @@ function Booking() {
           </div>
         </div>
 
+        {/* VREME */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi vreme</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -181,6 +197,7 @@ function Booking() {
           </div>
         </div>
 
+        {/* PODACI */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Vaši podaci</h3>
           <input placeholder="Ime i prezime" value={ime} onChange={e => setIme(e.target.value)}
@@ -190,19 +207,25 @@ function Booking() {
           <input placeholder="Broj telefona" value={telefon} onChange={e => setTelefon(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
         </div>
+
       </div>
 
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
+      {/* POTVRDI DUGME — iznad bottom nava */}
+      <div style={{ position: 'fixed', bottom: 64, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 480, padding: '10px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box', zIndex: 999 }}>
         {selectedUsluga && (
           <p style={{ textAlign: 'center', fontSize: 13, color: theme.subtext, margin: '0 0 8px' }}>
             {selectedUsluga.naziv} · {selectedUsluga.cena} RSD · {selectedUsluga.trajanje} min
           </p>
         )}
         <button onClick={handleConfirm} disabled={loading}
-          style={{ width: '100%', background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
+          style={{ width: '100%', background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', opacity: loading ? 0.7 : 1 }}>
           {loading ? 'Čekajte...' : 'Potvrdi Termin →'}
         </button>
       </div>
+
+      {/* BOTTOM NAVIGATION */}
+      <BottomNav user={user} />
+
     </div>
   );
 }

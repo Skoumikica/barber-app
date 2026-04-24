@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Star, Scissors, LogIn } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, Star, Scissors, LogIn, Home as HomeIcon, List, LayoutDashboard } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '../ThemeContext';
@@ -12,6 +12,66 @@ const salons = [
   { id: 4, name: 'Classic Barbers', rating: 4.6, price: 700, img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80' },
 ];
 
+// =============================================
+// BOTTOM NAVIGATION - koristicemo na svim ekranima
+// =============================================
+export function BottomNav({ user }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const items = [
+    { label: 'Početna', icon: <HomeIcon size={22} />, path: '/' },
+    { label: 'Saloni', icon: <List size={22} />, path: '/salons' },
+    { label: user ? 'Moj salon' : 'Prijava', icon: <LayoutDashboard size={22} />, path: user ? '/dashboard' : '/login' },
+  ];
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
+      maxWidth: 480,
+      backgroundColor: 'white',
+      borderTop: '1px solid #e2e8f0',
+      display: 'flex',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      padding: '10px 0 18px',
+      zIndex: 1000,
+      boxShadow: '0 -4px 12px rgba(0,0,0,0.08)',
+    }}>
+      {items.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <div
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
+              cursor: 'pointer',
+              color: isActive ? '#2563eb' : '#94a3b8',
+              fontWeight: isActive ? 'bold' : 'normal',
+              fontSize: 11,
+              minWidth: 64,
+            }}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================
+// HOME EKRAN
+// =============================================
 function Home() {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -24,26 +84,32 @@ function Home() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 80 }}>
 
-      {/* PLAVI HEADER - POCETAK */}
+      {/* PLAVI HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '32px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        
-        {/* Logo i navigacija */}
+
+        {/* Navbar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Scissors size={22} color="white" />
             <span style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>BarberApp</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div onClick={theme.toggle}
-              style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 10px', cursor: 'pointer', fontSize: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Tema toggle */}
+            <div
+              onClick={theme.toggle}
+              style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '7px 10px', cursor: 'pointer', fontSize: 16 }}>
               {theme.darkMode ? '☀️' : '🌙'}
             </div>
-            <div onClick={() => navigate(user ? '/dashboard' : '/login')}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '6px 12px', cursor: 'pointer' }}>
+            {/* Login dugme - SKRACENO */}
+            <div
+              onClick={() => navigate(user ? '/dashboard' : '/login')}
+              style={{ display: 'flex', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '7px 12px', cursor: 'pointer' }}>
               <LogIn size={15} color="white" />
-              <span style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{user ? 'Moj salon' : 'Frizer? Prijavi se'}</span>
+              <span style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>
+                {user ? 'Salon' : 'Prijava'}
+              </span>
             </div>
           </div>
         </div>
@@ -67,7 +133,6 @@ function Home() {
             style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, color: '#333' }} />
         </div>
 
-        {/* Traži dugme */}
         {search.trim() && (
           <button
             onClick={() => navigate(`/salons?q=${search}`)}
@@ -75,11 +140,9 @@ function Home() {
             🔍 Pretraži "{search}"
           </button>
         )}
-
       </div>
-      {/* PLAVI HEADER - KRAJ */}
 
-      {/* BELI SADRZAJ - POCETAK */}
+      {/* SADRZAJ */}
       <div style={{ padding: '20px' }}>
         <button
           onClick={() => navigate('/salons')}
@@ -88,7 +151,8 @@ function Home() {
         </button>
 
         {!user && (
-          <div onClick={() => navigate('/register')}
+          <div
+            onClick={() => navigate('/register')}
             style={{ backgroundColor: theme.darkMode ? '#1e3a8a' : '#eff6ff', borderRadius: 12, padding: '14px 16px', marginBottom: 24, cursor: 'pointer', border: '1px solid #bfdbfe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: 14, fontWeight: 'bold', color: theme.darkMode ? 'white' : '#1e3a8a', margin: 0 }}>💈 Si frizer?</p>
@@ -116,7 +180,9 @@ function Home() {
           ))}
         </div>
       </div>
-      {/* BELI SADRZAJ - KRAJ */}
+
+      {/* BOTTOM NAVIGATION */}
+      <BottomNav user={user} />
 
     </div>
   );

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut, Clock, User, Settings, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { useTheme } from '../ThemeContext';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { BottomNav } from './Home';
 
 function AppointmentCard({ appointment, onOtkazi }) {
   const theme = useTheme();
@@ -24,10 +26,10 @@ function AppointmentCard({ appointment, onOtkazi }) {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: `1px solid ${theme.border}`, opacity: done ? 0.4 : 1 }}>
-      <div style={{ background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12, flexShrink: 0 }}>
         <User size={20} color="#2563eb" />
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0, color: theme.text }}>{appointment.ime}</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
           <Clock size={11} color="#94a3b8" />
@@ -37,7 +39,7 @@ function AppointmentCard({ appointment, onOtkazi }) {
           <span style={{ fontSize: 11, color: '#2563eb' }}>{appointment.usluga}</span>
         )}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end', flexShrink: 0 }}>
         <button onClick={() => setDone(!done)}
           style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: done ? '#166534' : 'white', border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 'bold' }}>
           {done ? '✓' : appointment.vreme}
@@ -57,6 +59,12 @@ function Dashboard() {
   const [termini, setTermini] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDan, setSelectedDan] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
   const onOtkazi = async (id) => {
     await deleteDoc(doc(db, 'termini', id));
@@ -83,9 +91,9 @@ function Dashboard() {
   const filtrirani = selectedDan ? termini.filter(t => t.dan === selectedDan) : termini;
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
-      
-      {/* Header */}
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 80 }}>
+
+      {/* HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <User size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/profile')} />
@@ -105,7 +113,7 @@ function Dashboard() {
           </div>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
             <TrendingUp size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
-            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 18, margin: 0 }}>{procenjeniPrihod.toLocaleString()}</p>
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: 16, margin: 0 }}>{procenjeniPrihod.toLocaleString()}</p>
             <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>RSD prihod</p>
           </div>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
@@ -169,6 +177,10 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* BOTTOM NAVIGATION */}
+      <BottomNav user={user} />
+
     </div>
   );
 }

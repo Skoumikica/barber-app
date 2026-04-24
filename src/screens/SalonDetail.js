@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, Phone, Star, Clock, Award } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { doc, getDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '../ThemeContext';
+import { BottomNav } from './Home';
 
 const salonsStatic = [
   { id: '1', name: 'Style Cut', address: 'Kralja Petra 5, Beograd', phone: '064 111 2222', rating: 4.8, reviews: 124, bookings: 50, badge: 'Top salon', img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80' },
@@ -20,6 +22,13 @@ function SalonDetail() {
   const [usluge, setUsluge] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recenzije, setRecenzije] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const fetchSalon = async () => {
       const staticSalon = salonsStatic.find(s => s.id === id);
@@ -66,14 +75,18 @@ function SalonDetail() {
         }
       }
       setLoading(false);
-      // Učitaj recenzije
-const rQuery = query(
-  collection(db, 'recenzije'),
-  where('salonId', '==', id),
-  orderBy('kreirano', 'desc')
-);
-const rSnapshot = await getDocs(rQuery);
-setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+
+      try {
+        const rQuery = query(
+          collection(db, 'recenzije'),
+          where('salonId', '==', id),
+          orderBy('kreirano', 'desc')
+        );
+        const rSnapshot = await getDocs(rQuery);
+        setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch (e) {
+        console.log(e);
+      }
     };
     fetchSalon();
   }, [id]);
@@ -82,8 +95,9 @@ setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
   if (!salon) return <p style={{ padding: 20, color: theme.text }}>Salon nije pronađen.</p>;
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 90 }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 140 }}>
 
+      {/* SLIKA HEADER */}
       <div style={{ position: 'relative', height: 220 }}>
         <img src={salon.img} alt={salon.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.4))' }} />
@@ -94,9 +108,11 @@ setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
       </div>
 
       <div style={{ padding: 20 }}>
+
+        {/* INFO KARTICA */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h2 style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>{salon.name}</h2>
-          <div style={{ display: 'flex', gap: 16, marginBottom: 14 }}>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Star size={14} color="#f59e0b" fill="#f59e0b" />
               <span style={{ fontSize: 13, fontWeight: 'bold', color: theme.text }}>{salon.rating}</span>
@@ -117,7 +133,8 @@ setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
           </div>
         </div>
 
-        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+        {/* USLUGE */}
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Usluge</h3>
           {usluge.length === 0 ? (
             <p style={{ color: theme.subtext, textAlign: 'center' }}>Nema usluga.</p>
@@ -136,34 +153,42 @@ setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
             ))
           )}
         </div>
-      </div>
 
-{recenzije.length > 0 && (
-  <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginTop: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-    <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>
-      ⭐ Recenzije ({recenzije.length})
-    </h3>
-    {recenzije.map(r => (
-      <div key={r.id} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${theme.border}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          <div style={{ display: 'flex', gap: 2 }}>
-            {[1,2,3,4,5].map(i => (
-              <span key={i} style={{ color: i <= r.ocena ? '#f59e0b' : '#e2e8f0', fontSize: 14 }}>★</span>
+        {/* RECENZIJE */}
+        {recenzije.length > 0 && (
+          <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>
+              ⭐ Recenzije ({recenzije.length})
+            </h3>
+            {recenzije.map(r => (
+              <div key={r.id} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${theme.border}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{ display: 'flex', gap: 2 }}>
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <span key={i} style={{ color: i <= r.ocena ? '#f59e0b' : '#e2e8f0', fontSize: 14 }}>★</span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 'bold', color: theme.text }}>{r.ime}</span>
+                </div>
+                {r.komentar && <p style={{ fontSize: 13, color: theme.subtext, margin: 0 }}>{r.komentar}</p>}
+              </div>
             ))}
           </div>
-          <span style={{ fontSize: 13, fontWeight: 'bold', color: theme.text }}>{r.ime}</span>
-        </div>
-        {r.komentar && <p style={{ fontSize: 13, color: theme.subtext, margin: 0 }}>{r.komentar}</p>}
+        )}
+
       </div>
-    ))}
-  </div>
-)}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
+
+      {/* ZAKAŽI DUGME — fiksno iznad bottom nava */}
+      <div style={{ position: 'fixed', bottom: 64, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 480, padding: '10px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box', zIndex: 999 }}>
         <button onClick={() => navigate(`/booking/${id}`)}
           style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
           Zakaži odmah →
         </button>
       </div>
+
+      {/* BOTTOM NAVIGATION */}
+      <BottomNav user={user} />
+
     </div>
   );
 }
