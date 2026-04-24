@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, LogOut, Clock, User, Settings, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme } from '../ThemeContext';
+import { collection, onSnapshot, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
 
-function AppointmentCard({ appointment }) {
+function AppointmentCard({ appointment, onOtkazi }) {
   const theme = useTheme();
   const [done, setDone] = useState(false);
+  const [otkazivanje, setOtkazivanje] = useState(false);
+
+  const handleOtkazi = async () => {
+    if (window.confirm(`Da li ste sigurni da želite da otkažete termin za ${appointment.ime}?`)) {
+      setOtkazivanje(true);
+      try {
+        await onOtkazi(appointment.id);
+      } catch (error) {
+        alert('Greška pri otkazivanju.');
+        setOtkazivanje(false);
+      }
+    }
+  };
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: `1px solid ${theme.border}`, opacity: done ? 0.4 : 1 }}>
@@ -20,11 +33,20 @@ function AppointmentCard({ appointment }) {
           <Clock size={11} color="#94a3b8" />
           <span style={{ fontSize: 12, color: theme.subtext }}>{appointment.vreme} · {appointment.dan} {appointment.datum}</span>
         </div>
+        {appointment.usluga && (
+          <span style={{ fontSize: 11, color: '#2563eb' }}>{appointment.usluga}</span>
+        )}
       </div>
-      <button onClick={() => setDone(!done)}
-        style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: done ? '#166534' : 'white', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
-        {done ? '✓' : appointment.vreme}
-      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+        <button onClick={() => setDone(!done)}
+          style={{ backgroundColor: done ? '#86efac' : '#2563eb', color: done ? '#166534' : 'white', border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 'bold' }}>
+          {done ? '✓' : appointment.vreme}
+        </button>
+        <button onClick={handleOtkazi} disabled={otkazivanje}
+          style={{ backgroundColor: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 'bold' }}>
+          {otkazivanje ? '...' : 'Otkaži'}
+        </button>
+      </div>
     </div>
   );
 }
@@ -34,7 +56,9 @@ function Dashboard() {
   const theme = useTheme();
   const [termini, setTermini] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const onOtkazi = async (id) => {
+  await deleteDoc(doc(db, 'termini', id));
+};
   useEffect(() => {
     const q = query(collection(db, 'termini'), orderBy('kreirano', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -103,8 +127,7 @@ function Dashboard() {
             <>
               <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: theme.text }}>Zakazani Termini</h3>
               <p style={{ fontSize: 13, color: theme.subtext, marginBottom: 14 }}>{termini.length} termin(a) ukupno</p>
-              {termini.map(a => <AppointmentCard key={a.id} appointment={a} />)}
-            </>
+              {termini.map(a => <AppointmentCard key={a.id} appointment={a} onOtkazi={onOtkazi} />)}            </>
           )}
         </div>
       </div>
