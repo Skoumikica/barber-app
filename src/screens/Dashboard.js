@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut, Clock, User, Settings, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
+import { LogOut, Clock, User, Settings, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useTheme } from '../ThemeContext';
@@ -56,9 +56,12 @@ function Dashboard() {
   const theme = useTheme();
   const [termini, setTermini] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDan, setSelectedDan] = useState(null);
+
   const onOtkazi = async (id) => {
-  await deleteDoc(doc(db, 'termini', id));
-};
+    await deleteDoc(doc(db, 'termini', id));
+  };
+
   useEffect(() => {
     const q = query(collection(db, 'termini'), orderBy('kreirano', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -77,12 +80,15 @@ function Dashboard() {
   });
 
   const procenjeniPrihod = ovajMesec.length * 800;
+  const filtrirani = selectedDan ? termini.filter(t => t.dan === selectedDan) : termini;
 
   return (
     <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh' }}>
+      
+      {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-         <User size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/profile')} />
+          <User size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/profile')} />
           <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <Settings size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/setup')} />
@@ -90,6 +96,7 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Statistike */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
             <Calendar size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
@@ -110,6 +117,34 @@ function Dashboard() {
       </div>
 
       <div style={{ padding: 20 }}>
+
+        {/* Kalendar filter */}
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>📅 Termini po danima</h3>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+            <div onClick={() => setSelectedDan(null)}
+              style={{ textAlign: 'center', cursor: 'pointer', padding: '8px 14px', borderRadius: 10, flexShrink: 0,
+                backgroundColor: selectedDan === null ? '#2563eb' : theme.border,
+                color: selectedDan === null ? 'white' : theme.text }}>
+              <div style={{ fontSize: 13, fontWeight: 'bold' }}>Svi</div>
+              <div style={{ fontSize: 11 }}>{termini.length}</div>
+            </div>
+            {['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'].map(dan => {
+              const broj = termini.filter(t => t.dan === dan).length;
+              return (
+                <div key={dan} onClick={() => setSelectedDan(selectedDan === dan ? null : dan)}
+                  style={{ textAlign: 'center', cursor: 'pointer', padding: '8px 14px', borderRadius: 10, flexShrink: 0,
+                    backgroundColor: selectedDan === dan ? '#2563eb' : theme.border,
+                    color: selectedDan === dan ? 'white' : theme.text }}>
+                  <div style={{ fontSize: 13, fontWeight: 'bold' }}>{dan}</div>
+                  <div style={{ fontSize: 11 }}>{broj}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Lista termina */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           {loading ? (
             <p style={{ textAlign: 'center', color: theme.subtext }}>Učitavanje termina...</p>
@@ -125,9 +160,12 @@ function Dashboard() {
             </div>
           ) : (
             <>
-              <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: theme.text }}>Zakazani Termini</h3>
-              <p style={{ fontSize: 13, color: theme.subtext, marginBottom: 14 }}>{termini.length} termin(a) ukupno</p>
-              {termini.map(a => <AppointmentCard key={a.id} appointment={a} onOtkazi={onOtkazi} />)}            </>
+              <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: theme.text }}>
+                {selectedDan ? `Termini za ${selectedDan}` : 'Svi termini'}
+              </h3>
+              <p style={{ fontSize: 13, color: theme.subtext, marginBottom: 14 }}>{filtrirani.length} termin(a)</p>
+              {filtrirani.map(a => <AppointmentCard key={a.id} appointment={a} onOtkazi={onOtkazi} />)}
+            </>
           )}
         </div>
       </div>
