@@ -10,6 +10,7 @@ import Login from './screens/Login';
 import SalonSetup from './screens/SalonSetup';
 import Landing from './screens/Landing';
 import Profile from './screens/Profile';
+import Recenzija from './screens/Recenzija';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/setup" element={<SalonSetup />} />
         <Route path="/landing" element={<Landing />} />
+       <Route path="/recenzija/:id" element={<Recenzija />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>

@@ -117,6 +117,10 @@ function Booking() {
           style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px 32px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer' }}>
           Nazad na početak
         </button>
+        <button onClick={() => navigate(`/recenzija/${id}`)}
+          style={{ background: 'none', color: '#2563eb', border: 'none', fontSize: 14, cursor: 'pointer', marginTop: 12, textDecoration: 'underline' }}>
+          Ostavi recenziju ⭐
+       </button>
       </div>
     );
   }
