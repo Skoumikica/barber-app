@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, Phone, Star, Clock, Award } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme } from '../ThemeContext';
 
@@ -19,7 +19,7 @@ function SalonDetail() {
   const [salon, setSalon] = useState(null);
   const [usluge, setUsluge] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [recenzije, setRecenzije] = useState([]);
   useEffect(() => {
     const fetchSalon = async () => {
       const staticSalon = salonsStatic.find(s => s.id === id);
@@ -66,6 +66,14 @@ function SalonDetail() {
         }
       }
       setLoading(false);
+      // Učitaj recenzije
+const rQuery = query(
+  collection(db, 'recenzije'),
+  where('salonId', '==', id),
+  orderBy('kreirano', 'desc')
+);
+const rSnapshot = await getDocs(rQuery);
+setRecenzije(rSnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     };
     fetchSalon();
   }, [id]);
@@ -130,6 +138,26 @@ function SalonDetail() {
         </div>
       </div>
 
+{recenzije.length > 0 && (
+  <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginTop: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+    <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>
+      ⭐ Recenzije ({recenzije.length})
+    </h3>
+    {recenzije.map(r => (
+      <div key={r.id} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${theme.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <div style={{ display: 'flex', gap: 2 }}>
+            {[1,2,3,4,5].map(i => (
+              <span key={i} style={{ color: i <= r.ocena ? '#f59e0b' : '#e2e8f0', fontSize: 14 }}>★</span>
+            ))}
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 'bold', color: theme.text }}>{r.ime}</span>
+        </div>
+        {r.komentar && <p style={{ fontSize: 13, color: theme.subtext, margin: 0 }}>{r.komentar}</p>}
+      </div>
+    ))}
+  </div>
+)}
       <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
         <button onClick={() => navigate(`/booking/${id}`)}
           style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
