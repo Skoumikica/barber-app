@@ -11,7 +11,7 @@ import SalonSetup from './screens/SalonSetup';
 import Landing from './screens/Landing';
 import Profile from './screens/Profile';
 import Recenzija from './screens/Recenzija';
-
+import Admin from './screens/Admin';
 function App() {
   return (
     <BrowserRouter>
@@ -27,6 +27,7 @@ function App() {
         <Route path="/landing" element={<Landing />} />
        <Route path="/recenzija/:id" element={<Recenzija />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
