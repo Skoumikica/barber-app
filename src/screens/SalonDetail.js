@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, MapPin, Phone, Star, Clock, Award } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Star, Clock, Award, Map } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { doc, getDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db, auth } from '../firebase';
@@ -19,11 +19,13 @@ function SalonDetail() {
   const { id } = useParams();
   const theme = useTheme();
   const { t } = theme;
+  const sr = theme.jezik === 'sr';
   const [salon, setSalon] = useState(null);
   const [usluge, setUsluge] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recenzije, setRecenzije] = useState([]);
   const [user, setUser] = useState(null);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
@@ -100,6 +102,9 @@ function SalonDetail() {
   if (loading) return <p style={{ padding: 20, color: theme.text }}>{t.ucitavanje}</p>;
   if (!salon) return <p style={{ padding: 20, color: theme.text }}>Salon nije pronađen.</p>;
 
+  // Google Maps embed URL iz adrese
+  const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(salon.address)}&output=embed&z=15`;
+
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 140 }}>
 
@@ -129,10 +134,36 @@ function SalonDetail() {
               <span style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold' }}>{salon.bookings}{t.rezervacija}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <MapPin size={15} color="#2563eb" />
-            <span style={{ fontSize: 14, color: theme.subtext }}>{salon.address}</span>
+
+          {/* Adresa sa dugmetom za mapu */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MapPin size={15} color="#2563eb" />
+              <span style={{ fontSize: 14, color: theme.subtext }}>{salon.address}</span>
+            </div>
+            <button
+              onClick={() => setShowMap(prev => !prev)}
+              style={{ display: 'flex', alignItems: 'center', gap: 4, backgroundColor: showMap ? '#2563eb' : (theme.darkMode ? '#1e3a8a' : '#eff6ff'), color: showMap ? 'white' : '#2563eb', border: 'none', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 'bold', flexShrink: 0 }}>
+              <Map size={13} />
+              {showMap ? (sr ? 'Zatvori' : 'Close') : (sr ? 'Mapa' : 'Map')}
+            </button>
           </div>
+
+          {/* GOOGLE MAPS EMBED */}
+          {showMap && (
+            <div style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 8, border: `1px solid ${theme.border}` }}>
+              <iframe
+                title="Mapa salona"
+                src={mapSrc}
+                width="100%"
+                height="200"
+                style={{ border: 'none', display: 'block' }}
+                loading="lazy"
+                allowFullScreen
+              />
+            </div>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Phone size={15} color="#2563eb" />
             <span style={{ fontSize: 14, color: theme.subtext }}>{salon.phone}</span>
