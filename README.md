@@ -1,70 +1,144 @@
-# Getting Started with Create React App
+# 💈 BarberApp — Online Booking Platform for Barbers
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge)](https://barber-app-t9pg.onrender.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
 
-## Available Scripts
+> A full-stack web application that allows clients to book barber appointments online, and barbers to manage their schedules in real time.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🌐 Live Demo
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+👉 **[https://barber-app-t9pg.onrender.com](https://barber-app-t9pg.onrender.com)**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## ✨ Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### For Clients
+- 🔍 **Search salons** by city or service
+- 📅 **Book appointments** — choose service, day and time
+- 📧 **Email confirmation** sent automatically after booking
+- ⭐ **Leave reviews** for salons
+- 🗺️ **Google Maps embed** — see salon location
+- 🌍 **Bilingual** — Serbian / English
 
-### `npm run build`
+### For Barbers
+- 🔐 **Register & Login** — Firebase Authentication
+- 📊 **Dashboard** — real-time appointment management
+- 🔔 **In-app notifications** — instant alerts for new bookings
+- 📷 **Upload salon photo** — via Cloudinary
+- ⚙️ **Salon setup** — working hours & services
+- 👤 **Profile management**
+- ❌ **Cancel appointments** with one click
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Platform
+- 🛡️ **Admin panel** — verify/delete salons, manage all bookings
+- 📱 **PWA** — installable as a native app on mobile
+- 🌙 **Dark / Light mode** — remembered across sessions
+- 🖥️ **Responsive** — mobile-first + full desktop layout
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🛠️ Tech Stack
 
-### `npm run eject`
+| Technology | Usage |
+|-----------|-------|
+| **React 18** | Frontend framework |
+| **Firebase Firestore** | Real-time database |
+| **Firebase Auth** | Barber authentication |
+| **EmailJS** | Email notifications |
+| **Cloudinary** | Image upload & storage |
+| **Render** | Hosting & deployment |
+| **Lucide React** | Icons |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📱 Screenshots
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Mobile
+| Home | Salon List | Booking |
+|------|-----------|---------|
+| Search + salon grid | Filter & browse salons | Select service, day & time |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Desktop
+| Home | Salon Detail | Booking |
+|------|-------------|---------|
+| Hero + 4-column grid | 2-column layout + map | Split layout with sticky summary |
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🚀 Getting Started
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Firebase project
+- Cloudinary account (free)
 
-### Code Splitting
+### Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+# Clone the repository
+git clone https://github.com/Skoumika/barber-app.git
 
-### Analyzing the Bundle Size
+# Navigate to project
+cd barber-app
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Install dependencies
+npm install
 
-### Making a Progressive Web App
+# Start development server
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Environment
+The app uses Firebase config stored in `src/firebase.js`. Replace with your own Firebase project credentials.
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📁 Project Structure
 
-### Deployment
+```
+src/
+├── screens/
+│   ├── Home.js          # Landing page + BottomNav component
+│   ├── SalonList.js     # Browse & search salons
+│   ├── SalonDetail.js   # Salon info, services, reviews, map
+│   ├── Booking.js       # Appointment booking flow
+│   ├── Dashboard.js     # Barber dashboard + notifications
+│   ├── Login.js         # Barber login
+│   ├── Register.js      # Barber registration
+│   ├── SalonSetup.js    # Working hours & services setup
+│   ├── Profile.js       # Barber profile management
+│   ├── Recenzija.js     # Client review form
+│   ├── Landing.js       # Marketing page for barbers
+│   └── Admin.js         # Admin panel
+├── firebase.js          # Firebase configuration
+├── ThemeContext.js      # Theme + language global state
+└── App.js               # Routes
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 🔑 Key Implementation Details
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Real-time updates** — Firestore `onSnapshot` for live dashboard
+- **PWA** — Service Worker + Web App Manifest for mobile install
+- **Responsive design** — `window.innerWidth` hook for mobile/desktop layouts
+- **i18n** — Custom translation system in ThemeContext (SR/EN)
+- **Image upload** — Direct Cloudinary upload via unsigned preset
+- **Email notifications** — Dual EmailJS templates (barber + client)
+
+---
+
+## 👤 Author
+
+Built with ❤️ using React + Firebase
+
+---
+
+## 📄 License
+
+MIT License — free to use and modify
