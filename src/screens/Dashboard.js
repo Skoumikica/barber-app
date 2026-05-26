@@ -9,6 +9,7 @@ import { BottomNav } from './Home';
 
 function AppointmentCard({ appointment, onOtkazi }) {
   const theme = useTheme();
+  const { t } = theme;
   const [done, setDone] = useState(false);
   const [otkazivanje, setOtkazivanje] = useState(false);
 
@@ -46,7 +47,7 @@ function AppointmentCard({ appointment, onOtkazi }) {
         </button>
         <button onClick={handleOtkazi} disabled={otkazivanje}
           style={{ backgroundColor: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 'bold' }}>
-          {otkazivanje ? '...' : 'Otkaži'}
+          {otkazivanje ? '...' : t.otkazi}
         </button>
       </div>
     </div>
@@ -56,6 +57,7 @@ function AppointmentCard({ appointment, onOtkazi }) {
 function Dashboard() {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = theme;
   const [termini, setTermini] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDan, setSelectedDan] = useState(null);
@@ -89,6 +91,7 @@ function Dashboard() {
 
   const procenjeniPrihod = ovajMesec.length * 800;
   const filtrirani = selectedDan ? termini.filter(t => t.dan === selectedDan) : termini;
+  const days = t.days;
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 80 }}>
@@ -97,7 +100,7 @@ function Dashboard() {
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <User size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/profile')} />
-          <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>Kontrolna Tabla</h2>
+          <h2 style={{ color: 'white', fontSize: 18, fontWeight: 'bold', margin: 0 }}>{t.kontrolnaTabla}</h2>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <Settings size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/setup')} />
             <LogOut size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} />
@@ -109,17 +112,17 @@ function Dashboard() {
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
             <Calendar size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
             <p style={{ color: 'white', fontWeight: 'bold', fontSize: 20, margin: 0 }}>{ovajMesec.length}</p>
-            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>Ovaj mesec</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>{t.ovajMesec}</p>
           </div>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
             <TrendingUp size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
             <p style={{ color: 'white', fontWeight: 'bold', fontSize: 16, margin: 0 }}>{procenjeniPrihod.toLocaleString()}</p>
-            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>RSD prihod</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>{t.rsdPrihod}</p>
           </div>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
             <CheckCircle size={16} color="#93c5fd" style={{ marginBottom: 4 }} />
             <p style={{ color: 'white', fontWeight: 'bold', fontSize: 20, margin: 0 }}>{termini.length}</p>
-            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>Ukupno</p>
+            <p style={{ color: '#93c5fd', fontSize: 11, margin: 0 }}>{t.ukupno}</p>
           </div>
         </div>
       </div>
@@ -128,16 +131,16 @@ function Dashboard() {
 
         {/* Kalendar filter */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>📅 Termini po danima</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.terminiPoDanima}</h3>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
             <div onClick={() => setSelectedDan(null)}
               style={{ textAlign: 'center', cursor: 'pointer', padding: '8px 14px', borderRadius: 10, flexShrink: 0,
                 backgroundColor: selectedDan === null ? '#2563eb' : theme.border,
                 color: selectedDan === null ? 'white' : theme.text }}>
-              <div style={{ fontSize: 13, fontWeight: 'bold' }}>Svi</div>
+              <div style={{ fontSize: 13, fontWeight: 'bold' }}>{t.svi}</div>
               <div style={{ fontSize: 11 }}>{termini.length}</div>
             </div>
-            {['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'].map(dan => {
+            {days.map(dan => {
               const broj = termini.filter(t => t.dan === dan).length;
               return (
                 <div key={dan} onClick={() => setSelectedDan(selectedDan === dan ? null : dan)}
@@ -155,32 +158,30 @@ function Dashboard() {
         {/* Lista termina */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           {loading ? (
-            <p style={{ textAlign: 'center', color: theme.subtext }}>Učitavanje termina...</p>
+            <p style={{ textAlign: 'center', color: theme.subtext }}>{t.ucitavanje}</p>
           ) : termini.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 20px' }}>
               <div style={{ fontSize: 50, marginBottom: 16 }}>✂️</div>
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', color: theme.text, marginBottom: 8 }}>Još nema termina</h3>
-              <p style={{ color: theme.subtext, fontSize: 14, marginBottom: 24 }}>Kad klijenti zakažu, termini će se pojaviti ovde u realnom vremenu.</p>
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', color: theme.text, marginBottom: 8 }}>{t.nemaNista}</h3>
+              <p style={{ color: theme.subtext, fontSize: 14, marginBottom: 24 }}>{t.nemaNistaOpis}</p>
               <div style={{ backgroundColor: theme.darkMode ? '#1e3a8a' : '#eff6ff', borderRadius: 12, padding: '14px 16px', textAlign: 'left' }}>
-                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💡 Savet</p>
-                <p style={{ fontSize: 13, color: '#3b82f6', margin: '4px 0 0' }}>Podeli link aplikacije sa klijentima i počni da primaš rezervacije!</p>
+                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>💡 Tip</p>
+                <p style={{ fontSize: 13, color: '#3b82f6', margin: '4px 0 0' }}>Share the app link with clients and start receiving bookings!</p>
               </div>
             </div>
           ) : (
             <>
               <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4, color: theme.text }}>
-                {selectedDan ? `Termini za ${selectedDan}` : 'Svi termini'}
+                {selectedDan ? `${t.terminiZa} ${selectedDan}` : t.sviTermini}
               </h3>
-              <p style={{ fontSize: 13, color: theme.subtext, marginBottom: 14 }}>{filtrirani.length} termin(a)</p>
+              <p style={{ fontSize: 13, color: theme.subtext, marginBottom: 14 }}>{filtrirani.length} {t.terminA}</p>
               {filtrirani.map(a => <AppointmentCard key={a.id} appointment={a} onOtkazi={onOtkazi} />)}
             </>
           )}
         </div>
       </div>
 
-      {/* BOTTOM NAVIGATION */}
       <BottomNav user={user} />
-
     </div>
   );
 }

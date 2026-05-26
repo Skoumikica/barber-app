@@ -8,7 +8,6 @@ import emailjs from '@emailjs/browser';
 import { useTheme } from '../ThemeContext';
 import { BottomNav } from './Home';
 
-const days = ['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'];
 const dates = [14, 15, 16, 17, 18, 19, 20];
 const timeSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30'];
 
@@ -16,6 +15,9 @@ function Booking() {
   const navigate = useNavigate();
   const { id } = useParams();
   const theme = useTheme();
+  const { t } = theme;
+  const days = t.days;
+
   const [selectedDay, setSelectedDay] = useState(2);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedUsluga, setSelectedUsluga] = useState(null);
@@ -58,7 +60,7 @@ function Booking() {
 
   const handleConfirm = async () => {
     if (!selectedTime || !selectedUsluga || !ime || !telefon || !email) {
-      alert('Molimo popunite sva polja, izaberite uslugu i termin.');
+      alert(t.upozorenje);
       return;
     }
     setLoading(true);
@@ -80,26 +82,16 @@ function Booking() {
         const salonNaziv = docSnap.data().salonNaziv;
 
         await emailjs.send('service_kgg93x5', 'template_ih73t6h', {
-          email: frizerEmail,
-          salon_naziv: salonNaziv,
-          klijent_ime: ime,
-          klijent_telefon: telefon,
-          usluga: selectedUsluga.naziv,
-          dan: days[selectedDay],
-          datum: dates[selectedDay],
-          vreme: selectedTime,
-          cena: selectedUsluga.cena,
+          email: frizerEmail, salon_naziv: salonNaziv, klijent_ime: ime,
+          klijent_telefon: telefon, usluga: selectedUsluga.naziv,
+          dan: days[selectedDay], datum: dates[selectedDay],
+          vreme: selectedTime, cena: selectedUsluga.cena,
         }, 'GxX0uBmT-h8_iDTQl');
 
         await emailjs.send('service_kgg93x5', 'template_89v0p0k', {
-          email: email,
-          salon_naziv: salonNaziv,
-          klijent_ime: ime,
-          usluga: selectedUsluga.naziv,
-          dan: days[selectedDay],
-          datum: dates[selectedDay],
-          vreme: selectedTime,
-          cena: selectedUsluga.cena,
+          email: email, salon_naziv: salonNaziv, klijent_ime: ime,
+          usluga: selectedUsluga.naziv, dan: days[selectedDay],
+          datum: dates[selectedDay], vreme: selectedTime, cena: selectedUsluga.cena,
         }, 'GxX0uBmT-h8_iDTQl');
       }
 
@@ -116,7 +108,7 @@ function Booking() {
     return (
       <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', padding: 40, textAlign: 'center', backgroundColor: theme.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: 100 }}>
         <div style={{ fontSize: 70, marginBottom: 20 }}>✅</div>
-        <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>Termin zakazan!</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>{t.terminZakazan}</h2>
         <div style={{ backgroundColor: theme.card, borderRadius: 14, padding: 20, marginBottom: 24, width: '100%', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <p style={{ fontSize: 15, color: theme.text, margin: '0 0 8px' }}>✂️ <strong>{selectedUsluga.naziv}</strong></p>
           <p style={{ fontSize: 15, color: theme.text, margin: '0 0 8px' }}>🕐 {selectedTime}h · {days[selectedDay]} {dates[selectedDay]}</p>
@@ -124,11 +116,11 @@ function Booking() {
         </div>
         <button onClick={() => navigate('/')}
           style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px 32px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer' }}>
-          Nazad na početak
+          {t.nazadNaPocetak}
         </button>
         <button onClick={() => navigate(`/recenzija/${id}`)}
           style={{ background: 'none', color: '#2563eb', border: 'none', fontSize: 14, cursor: 'pointer', marginTop: 12, textDecoration: 'underline' }}>
-          Ostavi recenziju ⭐
+          {t.ostaviRecenziju}
         </button>
         <BottomNav user={user} />
       </div>
@@ -142,7 +134,7 @@ function Booking() {
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate(-1)} />
-          <h2 style={{ fontSize: 20, fontWeight: 'bold', color: 'white', margin: 0 }}>Zakaži Termin</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 'bold', color: 'white', margin: 0 }}>{t.zakaziTermin}</h2>
         </div>
       </div>
 
@@ -150,7 +142,7 @@ function Booking() {
 
         {/* USLUGE */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi uslugu</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.izaberiUslugu}</h3>
           {usluge.map((usluga, i) => (
             <div key={i} onClick={() => setSelectedUsluga(usluga)}
               style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, marginBottom: 8, cursor: 'pointer', border: '2px solid', borderColor: selectedUsluga?.naziv === usluga.naziv ? '#2563eb' : theme.border, backgroundColor: selectedUsluga?.naziv === usluga.naziv ? '#eff6ff' : theme.bg }}>
@@ -158,7 +150,7 @@ function Booking() {
                 <p style={{ fontWeight: 'bold', fontSize: 14, margin: 0, color: theme.text }}>{usluga.naziv}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
                   <Clock size={11} color="#94a3b8" />
-                  <span style={{ fontSize: 12, color: theme.subtext }}>{usluga.trajanje} min</span>
+                  <span style={{ fontSize: 12, color: theme.subtext }}>{usluga.trajanje} {t.min}</span>
                 </div>
               </div>
               <span style={{ fontWeight: 'bold', color: '#2563eb', fontSize: 15 }}>{usluga.cena} RSD</span>
@@ -168,7 +160,7 @@ function Booking() {
 
         {/* DAN */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi dan</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.izaberiDan}</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {days.map((day, i) => (
               <div key={i} onClick={() => setSelectedDay(i)}
@@ -184,7 +176,7 @@ function Booking() {
 
         {/* VREME */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Izaberi vreme</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.izaberiVreme}</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {timeSlots.map((time, i) => (
               <button key={i} onClick={() => setSelectedTime(time)}
@@ -199,33 +191,30 @@ function Booking() {
 
         {/* PODACI */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Vaši podaci</h3>
-          <input placeholder="Ime i prezime" value={ime} onChange={e => setIme(e.target.value)}
+          <h3 style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.vasiPodaci}</h3>
+          <input placeholder={t.imePrezime} value={ime} onChange={e => setIme(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
-          <input placeholder="Email adresa" value={email} onChange={e => setEmail(e.target.value)}
+          <input placeholder={t.emailAdresa} value={email} onChange={e => setEmail(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, marginBottom: 10, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
-          <input placeholder="Broj telefona" value={telefon} onChange={e => setTelefon(e.target.value)}
+          <input placeholder={t.brojTelefona} value={telefon} onChange={e => setTelefon(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 15, boxSizing: 'border-box', outline: 'none', backgroundColor: theme.input, color: theme.inputText }} />
         </div>
-
       </div>
 
-      {/* POTVRDI DUGME — iznad bottom nava */}
+      {/* POTVRDI DUGME */}
       <div style={{ position: 'fixed', bottom: 64, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 480, padding: '10px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box', zIndex: 999 }}>
         {selectedUsluga && (
           <p style={{ textAlign: 'center', fontSize: 13, color: theme.subtext, margin: '0 0 8px' }}>
-            {selectedUsluga.naziv} · {selectedUsluga.cena} RSD · {selectedUsluga.trajanje} min
+            {selectedUsluga.naziv} · {selectedUsluga.cena} RSD · {selectedUsluga.trajanje} {t.min}
           </p>
         )}
         <button onClick={handleConfirm} disabled={loading}
           style={{ width: '100%', background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', opacity: loading ? 0.7 : 1 }}>
-          {loading ? 'Čekajte...' : 'Potvrdi Termin →'}
+          {loading ? t.cekajte : t.potvrdiTermin}
         </button>
       </div>
 
-      {/* BOTTOM NAVIGATION */}
       <BottomNav user={user} />
-
     </div>
   );
 }

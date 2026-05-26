@@ -18,6 +18,7 @@ function SalonList() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  const { t } = theme;
   const params = new URLSearchParams(location.search);
   const [search, setSearch] = useState(params.get('q') || '');
   const [frizeri, setFrizeri] = useState([]);
@@ -60,12 +61,12 @@ function SalonList() {
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer', marginRight: 12 }} onClick={() => navigate('/')} />
-          <h2 style={{ fontSize: 20, fontWeight: 'bold', color: 'white', margin: 0 }}>Pronađi Salon</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 'bold', color: 'white', margin: 0 }}>{t.pronajdiSalon}</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', backgroundColor: theme.card, borderRadius: 12, padding: '10px 14px', gap: 8 }}>
           <Search size={18} color="#94a3b8" />
           <input
-            placeholder="Grad ili usluga..."
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ border: 'none', outline: 'none', width: '100%', fontSize: 15, backgroundColor: 'transparent', color: theme.inputText }} />
@@ -75,7 +76,7 @@ function SalonList() {
       {/* LISTA SALONA */}
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
         {filtrirani.length === 0 ? (
-          <p style={{ textAlign: 'center', color: theme.subtext, marginTop: 20 }}>Nema rezultata za "{search}"</p>
+          <p style={{ textAlign: 'center', color: theme.subtext, marginTop: 20 }}>{t.nemaRezultata} "{search}"</p>
         ) : (
           filtrirani.map(salon => (
             <div key={salon.id} onClick={() => navigate(`/salon/${salon.id}`)}
@@ -92,11 +93,11 @@ function SalonList() {
                   <Star size={13} color="#f59e0b" fill="#f59e0b" />
                   <span style={{ fontSize: 13, color: theme.subtext }}>{salon.rating}</span>
                 </div>
-                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>od {salon.price} RSD</p>
+                <p style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold', margin: 0 }}>{t.od} {salon.price} RSD</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', padding: '12px 10px', flexShrink: 0 }}>
                 <button style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 'bold' }}>
-                  Pogledaj
+                  {t.pogledaj}
                 </button>
               </div>
             </div>
@@ -104,9 +105,7 @@ function SalonList() {
         )}
       </div>
 
-      {/* BOTTOM NAVIGATION */}
       <BottomNav user={user} />
-
     </div>
   );
 }

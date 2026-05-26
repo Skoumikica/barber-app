@@ -18,6 +18,7 @@ function SalonDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const theme = useTheme();
+  const { t } = theme;
   const [salon, setSalon] = useState(null);
   const [usluge, setUsluge] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +38,6 @@ function SalonDetail() {
         try {
           const docSnap = await getDoc(doc(db, 'frizeri', id));
           if (docSnap.exists()) {
-            // Ako frizer ima svoju sliku, koristi je
             if (docSnap.data().slikaUrl) {
               setSalon(prev => ({ ...prev, img: docSnap.data().slikaUrl }));
             }
@@ -97,7 +97,7 @@ function SalonDetail() {
     fetchSalon();
   }, [id]);
 
-  if (loading) return <p style={{ padding: 20, color: theme.text }}>Učitavanje...</p>;
+  if (loading) return <p style={{ padding: 20, color: theme.text }}>{t.ucitavanje}</p>;
   if (!salon) return <p style={{ padding: 20, color: theme.text }}>Salon nije pronađen.</p>;
 
   return (
@@ -122,11 +122,11 @@ function SalonDetail() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Star size={14} color="#f59e0b" fill="#f59e0b" />
               <span style={{ fontSize: 13, fontWeight: 'bold', color: theme.text }}>{salon.rating}</span>
-              <span style={{ fontSize: 13, color: theme.subtext }}>({salon.reviews} recenzija)</span>
+              <span style={{ fontSize: 13, color: theme.subtext }}>({salon.reviews} {t.recenzija})</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Award size={14} color="#2563eb" />
-              <span style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold' }}>{salon.bookings}+ rezervacija</span>
+              <span style={{ fontSize: 13, color: '#2563eb', fontWeight: 'bold' }}>{salon.bookings}{t.rezervacija}</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -141,9 +141,9 @@ function SalonDetail() {
 
         {/* USLUGE */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>Usluge</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>{t.usluge}</h3>
           {usluge.length === 0 ? (
-            <p style={{ color: theme.subtext, textAlign: 'center' }}>Nema usluga.</p>
+            <p style={{ color: theme.subtext, textAlign: 'center' }}>-</p>
           ) : (
             usluge.map((usluga, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 12, marginBottom: 12, borderBottom: index < usluge.length - 1 ? `1px solid ${theme.border}` : 'none' }}>
@@ -151,7 +151,7 @@ function SalonDetail() {
                   <p style={{ fontSize: 15, color: theme.text, margin: 0, marginBottom: 2 }}>{usluga.naziv || usluga.name}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Clock size={11} color="#94a3b8" />
-                    <span style={{ fontSize: 12, color: theme.subtext }}>{usluga.trajanje || usluga.duration} min</span>
+                    <span style={{ fontSize: 12, color: theme.subtext }}>{usluga.trajanje || usluga.duration} {t.min}</span>
                   </div>
                 </div>
                 <span style={{ fontWeight: 'bold', fontSize: 15, color: theme.text }}>{usluga.cena || usluga.price} RSD</span>
@@ -164,7 +164,7 @@ function SalonDetail() {
         {recenzije.length > 0 && (
           <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 14, color: theme.text }}>
-              ⭐ Recenzije ({recenzije.length})
+              ⭐ {t.recenzije} ({recenzije.length})
             </h3>
             {recenzije.map(r => (
               <div key={r.id} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${theme.border}` }}>
@@ -181,20 +181,17 @@ function SalonDetail() {
             ))}
           </div>
         )}
-
       </div>
 
-      {/* ZAKAŽI DUGME — fiksno iznad bottom nava */}
+      {/* ZAKAŽI DUGME */}
       <div style={{ position: 'fixed', bottom: 64, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 480, padding: '10px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box', zIndex: 999 }}>
         <button onClick={() => navigate(`/booking/${id}`)}
           style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
-          Zakaži odmah →
+          {t.zakaziOdmahBtn}
         </button>
       </div>
 
-      {/* BOTTOM NAVIGATION */}
       <BottomNav user={user} />
-
     </div>
   );
 }
