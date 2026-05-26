@@ -37,7 +37,7 @@ function SalonList() {
           name: doc.data().salonNaziv,
           rating: 5.0,
           price: doc.data().usluge?.[0]?.cena || 800,
-          img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
+          img: doc.data().slikaUrl || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80',
           isReal: true,
         }));
         setFrizeri(data);

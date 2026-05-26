@@ -36,8 +36,14 @@ function SalonDetail() {
         setSalon(staticSalon);
         try {
           const docSnap = await getDoc(doc(db, 'frizeri', id));
-          if (docSnap.exists() && docSnap.data().usluge) {
-            setUsluge(docSnap.data().usluge);
+          if (docSnap.exists()) {
+            // Ako frizer ima svoju sliku, koristi je
+            if (docSnap.data().slikaUrl) {
+              setSalon(prev => ({ ...prev, img: docSnap.data().slikaUrl }));
+            }
+            if (docSnap.data().usluge) {
+              setUsluge(docSnap.data().usluge);
+            }
           } else {
             setUsluge([
               { naziv: 'Muško šišanje', cena: 800, trajanje: 30 },
@@ -66,7 +72,7 @@ function SalonDetail() {
               reviews: 0,
               bookings: 0,
               badge: '✓ Novo',
-              img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80',
+              img: data.slikaUrl || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80',
             });
             setUsluge(data.usluge || []);
           }

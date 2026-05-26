@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Camera, Upload } from 'lucide-react';
 import { useTheme } from '../ThemeContext';
+
+const CLOUDINARY_CLOUD_NAME = 'dgd116da2';
+const CLOUDINARY_UPLOAD_PRESET = 'cryzufnj';
 
 const daniNedelje = ['Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota', 'Nedelja'];
 
 function SalonSetup() {
   const navigate = useNavigate();
   const theme = useTheme();
+
+  const [salonSlika, setSalonSlika] = useState(null);
+  const [uploadingSlika, setUploadingSlika] = useState(false);
+  const [previewSlika, setPreviewSlika] = useState(null);
+
   const [radnoVreme, setRadnoVreme] = useState({
     Ponedeljak: { aktivan: true, od: '09:00', do: '18:00' },
     Utorak: { aktivan: true, od: '09:00', do: '18:00' },
@@ -19,12 +27,40 @@ function SalonSetup() {
     Subota: { aktivan: true, od: '09:00', do: '15:00' },
     Nedelja: { aktivan: false, od: '09:00', do: '15:00' },
   });
+
   const [usluge, setUsluge] = useState([
     { naziv: 'Muško šišanje', cena: 800, trajanje: 30 },
     { naziv: 'Sređivanje brade', cena: 500, trajanje: 20 },
   ]);
   const [novaUsluga, setNovaUsluga] = useState({ naziv: '', cena: '', trajanje: 30 });
   const [loading, setLoading] = useState(false);
+
+  // ── UPLOAD SLIKE NA CLOUDINARY ──
+  const handleSlikaChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreviewSlika(ev.target.result);
+    reader.readAsDataURL(file);
+
+    setSalonSlika(file);
+  };
+
+  const uploadSlika = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'barberapp/saloni');
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+    const data = await response.json();
+    return data.secure_url;
+  };
 
   const toggleDan = (dan) => {
     setRadnoVreme(prev => ({ ...prev, [dan]: { ...prev[dan], aktivan: !prev[dan].aktivan } }));
@@ -47,20 +83,46 @@ function SalonSetup() {
   const sacuvaj = async () => {
     setLoading(true);
     try {
-      await updateDoc(doc(db, 'frizeri', auth.currentUser.uid), {
-        radnoVreme, usluge, azurirano: new Date()
-      });
+      let slikaUrl = null;
+
+      // Upload slike ako je izabrana
+      if (salonSlika) {
+        setUploadingSlika(true);
+        slikaUrl = await uploadSlika(salonSlika);
+        setUploadingSlika(false);
+      }
+
+      const updateData = {
+        radnoVreme,
+        usluge,
+        azurirano: new Date(),
+      };
+
+      // Dodaj sliku samo ako je uploadovana
+      if (slikaUrl) {
+        updateData.slikaUrl = slikaUrl;
+      }
+
+      await updateDoc(doc(db, 'frizeri', auth.currentUser.uid), updateData);
       navigate('/dashboard');
     } catch (error) {
+      console.log(error);
       alert('Greška pri čuvanju. Pokušajte ponovo.');
     }
     setLoading(false);
   };
 
-  const inputStyle = { padding: '6px 10px', borderRadius: 8, border: `1px solid ${theme.border}`, fontSize: 14, flex: 1, backgroundColor: theme.input, color: theme.inputText };
+  const inputStyle = {
+    padding: '6px 10px', borderRadius: 8,
+    border: `1px solid ${theme.border}`,
+    fontSize: 14, flex: 1,
+    backgroundColor: theme.input, color: theme.inputText
+  };
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: 100 }}>
+
+      {/* HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '20px 20px 28px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ArrowLeft size={22} color="white" style={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard')} />
@@ -69,6 +131,52 @@ function SalonSetup() {
       </div>
 
       <div style={{ padding: 20 }}>
+
+        {/* UPLOAD SLIKE */}
+        <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 16, color: theme.text }}>📷 Slika Salona</h3>
+
+          {/* Preview slike */}
+          {previewSlika ? (
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <img
+                src={previewSlika}
+                alt="Preview"
+                style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 12 }}
+              />
+              <button
+                onClick={() => { setPreviewSlika(null); setSalonSlika(null); }}
+                style={{ position: 'absolute', top: 8, right: 8, backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                ✕
+              </button>
+            </div>
+          ) : (
+            <label style={{ display: 'block', cursor: 'pointer' }}>
+              <div style={{ border: `2px dashed ${theme.border}`, borderRadius: 12, padding: '30px 20px', textAlign: 'center', backgroundColor: theme.bg }}>
+                <Camera size={32} color="#94a3b8" style={{ marginBottom: 8 }} />
+                <p style={{ fontSize: 14, fontWeight: 'bold', color: theme.text, margin: '0 0 4px' }}>Dodaj sliku salona</p>
+                <p style={{ fontSize: 12, color: theme.subtext, margin: 0 }}>JPG, PNG · Max 5MB</p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSlikaChange}
+                style={{ display: 'none' }}
+              />
+            </label>
+          )}
+
+          {salonSlika && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#eff6ff', borderRadius: 8, padding: '8px 12px' }}>
+              <Upload size={14} color="#2563eb" />
+              <span style={{ fontSize: 12, color: '#2563eb' }}>
+                {uploadingSlika ? 'Uploading...' : `Izabrano: ${salonSlika.name}`}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* RADNO VREME */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 16, color: theme.text }}>🕐 Radno Vreme</h3>
           {daniNedelje.map(dan => (
@@ -91,6 +199,7 @@ function SalonSetup() {
           ))}
         </div>
 
+        {/* USLUGE */}
         <div style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 16, color: theme.text }}>✂️ Usluge</h3>
           {usluge.map((usluga, index) => (
@@ -126,10 +235,11 @@ function SalonSetup() {
         </div>
       </div>
 
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 400, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
+      {/* SAČUVAJ DUGME */}
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 480, padding: '12px 20px', backgroundColor: theme.card, borderTop: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
         <button onClick={sacuvaj} disabled={loading}
-          style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
-          {loading ? 'Čuvanje...' : 'Sačuvaj Podešavanja →'}
+          style={{ width: '100%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', padding: '14px', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', opacity: loading ? 0.7 : 1 }}>
+          {loading ? (uploadingSlika ? '📷 Upload slike...' : '💾 Čuvanje...') : 'Sačuvaj Podešavanja →'}
         </button>
       </div>
     </div>
